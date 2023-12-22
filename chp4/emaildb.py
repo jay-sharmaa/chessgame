@@ -291,7 +291,7 @@ def check_king(position, color):
         if target not in friends_list and 0 <= target[0] <= 7 and 0 <= target[1] <= 7:
             moves_list.append(target)
 
-    return moves_list
+
 def check_valid_moves():
     if turn_step < 2:
         options_list = white_options
@@ -310,6 +310,7 @@ def draw_valid(moves):
     for i in range(len(moves)):
         pygame.draw.circle(screen, color, (moves[i][0] * 100 + 50, moves[i][1] * 100 + 50), 5)
 
+
 def draw_captured():
     for i in range(len(captured_pieces_white)):
         captured_piece = captured_pieces_white[i]
@@ -321,6 +322,25 @@ def draw_captured():
         screen.blit(white_small_images[index], (925, 5 + 50*i))
 
 
+counter = 0
+def king_check():
+    if turn_step < 2:
+        king_index = white_pieces.index('king')
+        king_location = white_locations[king_index]
+        for i in range(len(black_options)):
+            if king_location in black_options[i]:
+                if counter < 15:
+                    pygame.draw.rect(screen, 'blue', [white_locations[king_index][0] * 100 + 1,
+                                                      white_locations[king_index][1] * 100 + 1, 100, 100], 5)
+    else:
+        king_index = black_pieces.index('king')
+        king_location = black_locations[king_index]
+        for i in range(len(white_options)):
+            if king_location in white_options[i]:
+                if counter < 15:
+                    pygame.draw.rect(screen, 'blue', [black_locations[king_index][0] * 100 + 1,
+                                                      black_locations[king_index][1] * 100 + 1, 100, 100], 5)
+
 
 black_options = check_options(black_pieces, black_locations, 'black')
 white_options = check_options(white_pieces, white_locations, 'white')
@@ -329,11 +349,15 @@ run = True
 
 while run:
     timer.tick(fps)
+    if counter < 30:
+        counter += 1
+    else:
+        counter = 0
     screen.fill('dark gray')
     draw_board()
     draw_pieces()
     draw_captured()
-
+    king_check()
     if selection != 100:
         valid_moves = check_valid_moves()
         draw_valid(valid_moves)
