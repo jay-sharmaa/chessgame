@@ -151,7 +151,9 @@ def check_pawn(position, color):
             moves_list.append((position[0], position[1] + 1))
         if (position[0], position[1] + 2) not in white_locations and (
                 position[0], position[1] + 2) not in black_locations and position[1] == 1:
-            moves_list.append((position[0], position[1] + 2))
+            if (position[0], position[1] + 1) not in white_locations and (
+                    position[0], position[1] + 1) not in black_locations:
+                moves_list.append((position[0], position[1] + 2))
         if (position[0] + 1, position[1] + 1) in black_locations:
             moves_list.append((position[0] + 1, position[1] + 1))
         if (position[0] - 1, position[1] + 1) in black_locations:
@@ -337,6 +339,7 @@ def king_check():
                     if counter < 15:
                         pygame.draw.rect(screen, 'blue', [white_locations[king_index][0] * 100 + 1,
                                                           white_locations[king_index][1] * 100 + 1, 100, 100], 5)
+                        boolean = True
 
     else:
         if 'king' in black_pieces:
@@ -347,6 +350,7 @@ def king_check():
                     if counter < 15:
                         pygame.draw.rect(screen, 'blue', [black_locations[king_index][0] * 100 + 1,
                                                           black_locations[king_index][1] * 100 + 1, 100, 100], 5)
+                        boolean = True
 
 
 text_font = pygame.font.SysFont("Arial", 45, bold=True)
@@ -386,7 +390,7 @@ while run:
             y_coord = event.pos[1] // 100
             click_coords = (x_coord, y_coord)
             if turn_step <= 1:
-                if (click_coords) == (8,8):
+                if (click_coords) == (8, 8):
                     winner = 'black'
                 if click_coords in white_locations:
                     selection = white_locations.index(click_coords)
@@ -407,7 +411,7 @@ while run:
                     selection = 100
                     valid_moves = []
             if turn_step > 1:
-                if (click_coords) == (8,8):
+                if (click_coords) == (8, 8):
                     winner = 'white'
                 if click_coords in black_locations:
                     selection = black_locations.index(click_coords)
