@@ -143,6 +143,10 @@ def check_options(pieces, locations, turn):
     return all_moves_list
 
 
+white_ep = (100, 100)
+black_ep = (100, 100)
+
+
 def check_pawn(position, color):
     moves_list = []
     if color == 'white':
@@ -159,18 +163,46 @@ def check_pawn(position, color):
         if (position[0] - 1, position[1] + 1) in black_locations:
             moves_list.append((position[0] - 1, position[1] + 1))
 
+        if (position[0] + 1, position[1] + 1) == black_ep:
+            moves_list.append((position[0] + 1, position[1] + 1))
+        if (position[0] - 1, position[1] + 1) == black_ep:
+            moves_list.append((position[0] - 1, position[1] + 1))
+
     if color == 'black':
         if (position[0], position[1] - 1) not in white_locations and (
                 position[0], position[1] - 1) not in black_locations and position[1] > 0:
             moves_list.append((position[0], position[1] - 1))
         if (position[0], position[1] - 2) not in white_locations and (
                 position[0], position[1] - 2) not in black_locations and position[1] == 6:
-            moves_list.append((position[0], position[1] - 2))
+            if (position[0], position[1] - 1) not in white_locations and (
+                    position[0], position[1] - 1) not in black_locations:
+                moves_list.append((position[0], position[1] - 2))
         if (position[0] + 1, position[1] - 1) in white_locations:
             moves_list.append((position[0] + 1, position[1] - 1))
         if (position[0] - 1, position[1] - 1) in white_locations:
             moves_list.append((position[0] - 1, position[1] - 1))
+
+        if (position[0] + 1, position[1] - 1) == white_ep:
+            moves_list.append((position[0] + 1, position[1] - 1))
+        if (position[0] - 1, position[1] - 1) == white_ep:
+            moves_list.append((position[0] - 1, position[1] - 1))
     return moves_list
+
+
+def check_ep(old_coords, new_coords):
+    if turn_step <= 1:
+        index = white_locations.index(old_coords)
+        ep_coords = (new_coords[0], new_coords[1] - 1)
+        piece = white_pieces[index]
+    else:
+        index = black_locations.index(old_coords)
+        ep_coords = (new_coords[0], new_coords[1] + 1)
+        piece = black_pieces[index]
+    if piece == "pawn" and abs(old_coords[1] - new_coords[1]) > 1:
+        pass
+    else:
+        ep_coords = (100, 100)
+    return ep_coords
 
 
 def check_rook(position, color):
@@ -397,6 +429,7 @@ while run:
                     if turn_step == 0:
                         turn_step = 1
                 if click_coords in valid_moves and selection != 100:
+                    white_ep = check_ep(white_locations[selection], click_coords)
                     white_locations[selection] = click_coords
                     if click_coords in black_locations:
                         black_piece = black_locations.index(click_coords)
@@ -405,6 +438,13 @@ while run:
                             winner = 'white'
                         black_pieces.pop(black_piece)
                         black_locations.pop(black_piece)
+
+                    if click_coords == black_ep:
+                        black_piece = black_locations.index((black_ep[0], black_ep[1] - 1))
+                        captured_pieces_white.append(black_pieces[black_piece])
+                        black_pieces.pop(black_piece)
+                        black_locations.pop(black_piece)
+
                     black_options = check_options(black_pieces, black_locations, 'black')
                     white_options = check_options(white_pieces, white_locations, 'white')
                     turn_step = 2
@@ -418,6 +458,7 @@ while run:
                     if turn_step == 2:
                         turn_step = 3
                 if click_coords in valid_moves and selection != 100:
+                    black_ep = check_ep(black_locations[selection], click_coords)
                     black_locations[selection] = click_coords
                     if click_coords in white_locations:
                         white_piece = white_locations.index(click_coords)
@@ -426,6 +467,13 @@ while run:
                             winner = 'black'
                         white_pieces.pop(white_piece)
                         white_locations.pop(white_piece)
+
+                    if click_coords == white_locations:
+                        white_piece = white_locations.index(click_coords)
+                        captured_pieces_black.append(white_pieces[white_piece])
+                        white_pieces.pop(white_piece)
+                        white_locations.pop(white_piece)
+
                     black_options = check_options(black_pieces, black_locations, 'black')
                     white_options = check_options(white_pieces, white_locations, 'white')
                     turn_step = 0
@@ -466,6 +514,5 @@ while run:
     if winner != '':
         game_over = True
         draw_game_over(f"Winner is {winner}", text_font, 320, 150)
-
     pygame.display.flip()
 pygame.quit()
