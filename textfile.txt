@@ -1,1 +1,3 @@
 Added a text file for instruction
+King can still move on check places
+No stalemate option
