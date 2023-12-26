@@ -65,10 +65,12 @@ white_pawn = pygame.transform.scale(white_pawn, (65, 65))
 white_pawn_small = pygame.transform.scale(white_pawn, (45, 45))
 
 white_images = [white_pawn, white_rook, white_knight, white_bishop, white_king, white_queen]
+white_promotions = ['bishop', 'knight', 'rook', 'queen']
 white_small_images = [white_pawn_small, white_rook_small, white_knight_small, white_bishop_small, white_king_small,
                       white_queen_small]
 
 black_images = [black_pawn, black_rook, black_knight, black_bishop, black_king, black_queen]
+black_promotions = ['bishop', 'knight', 'rook', 'queen']
 black_small_images = [black_pawn_small, black_rook_small, black_knight_small, black_bishop_small, black_king_small,
                       black_queen_small]
 
@@ -205,6 +207,29 @@ def check_ep(old_coords, new_coords):
     return ep_coords
 
 
+def check_promotion():
+    pawn_indexes = []
+    white_promotion = False
+    black_promotion = False
+    promote_index = False
+    for i in range(len(white_pieces)):
+        if white_pieces[i] == 'pawn':
+            pawn_indexes.append(i)
+    for i in range(len(pawn_indexes)):
+        if white_locations[pawn_indexes[i]][1] == 7:
+            white_promotion = True
+            promote_index = pawn_indexes[i]
+    pawn_indexes = []
+    for i in range(len(black_pieces)):
+        if black_pieces[i] == 'pawn':
+            pawn_indexes.append(i)
+    for i in range(len(pawn_indexes)):
+        if black_locations[pawn_indexes[i]][1] == 0:
+            black_promotion = True
+            promote_index = pawn_indexes[i]
+    return white_promotion, black_promotion, promote_index
+
+
 def check_rook(position, color):
     moves_list = []
 
@@ -311,6 +336,9 @@ def check_queen(position, color):
     return moves_list
 
 
+boolean = True
+
+
 def check_king(position, color):
     moves_list = []
 
@@ -371,7 +399,7 @@ def king_check():
                     if counter < 15:
                         pygame.draw.rect(screen, 'blue', [white_locations[king_index][0] * 100 + 1,
                                                           white_locations[king_index][1] * 100 + 1, 100, 100], 5)
-                        boolean = True
+
 
     else:
         if 'king' in black_pieces:
@@ -382,11 +410,9 @@ def king_check():
                     if counter < 15:
                         pygame.draw.rect(screen, 'blue', [black_locations[king_index][0] * 100 + 1,
                                                           black_locations[king_index][1] * 100 + 1, 100, 100], 5)
-                        boolean = True
 
 
 text_font = pygame.font.SysFont("Arial", 45, bold=True)
-boolean = False
 
 
 def draw_game_over(text, font, x, y):
@@ -396,6 +422,39 @@ def draw_game_over(text, font, x, y):
 
 black_options = check_options(black_pieces, black_locations, 'black')
 white_options = check_options(white_pieces, white_locations, 'white')
+white_promo = False
+black_promo = False
+promo_index = 100
+
+
+def draw_promo():
+    pygame.draw.rect(screen, 'dark gray', [800, 0, 200, 420])
+    if white_promo:
+        color = 'white'
+        for i in range(len(white_promotions)):
+            piece = white_promotions[i]
+            index = piece_list.index(piece)
+            screen.blit(white_images[index], (860, 5 + 100 * i))
+    elif black_promo:
+        color = 'black'
+        for i in range(len(black_promotions)):
+            piece = black_promotions[i]
+            index = piece_list.index(piece)
+            screen.blit(black_images[index], (860, 5 + 100 * i))
+    pygame.draw.rect(screen, color, [800, 0, 200, 420], 8)
+
+
+def check_select():
+    mouse_pos = pygame.mouse.get_pos()
+    left_click = pygame.mouse.get_pressed()[0]
+    x_pos = mouse_pos[0] // 100
+    y_pos = mouse_pos[1] // 100
+
+    if white_promo and left_click and x_pos > 7 and y_pos < 4:
+        white_pieces[promo_index] = white_promotions[y_pos]
+    elif black_promo and left_click and x_pos > 7 and y_pos < 4:
+        black_pieces[promo_index] = black_promotions[y_pos]
+
 
 run = True
 winner = ''
@@ -410,6 +469,11 @@ while run:
     draw_pieces()
     draw_captured()
     king_check()
+    if not game_over:
+        white_promo, black_promo, promo_index = check_promotion()
+        if white_promo or black_promo:
+            draw_promo()
+            check_select()
     if selection != 100:
         valid_moves = check_valid_moves()
         draw_valid(valid_moves)
