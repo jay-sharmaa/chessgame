@@ -344,8 +344,10 @@ def check_king(position, color):
 
     if color == 'white':
         friends_list = white_locations
+        enemies_list = black_locations
     else:
         friends_list = black_locations
+        enemies_list = white_locations
 
     targets = [(1, 0), (0, 1), (-1, 0), (0, -1), (1, 1), (1, -1), (-1, 1), (-1, -1)]
 
@@ -428,7 +430,6 @@ promo_index = 100
 
 
 def draw_promo():
-    pygame.draw.rect(screen, 'dark gray', [800, 0, 200, 420])
     if white_promo:
         color = 'white'
         for i in range(len(white_promotions)):
@@ -441,7 +442,8 @@ def draw_promo():
             piece = black_promotions[i]
             index = piece_list.index(piece)
             screen.blit(black_images[index], (860, 5 + 100 * i))
-    pygame.draw.rect(screen, color, [800, 0, 200, 420], 8)
+    pygame.draw.rect(screen, color, [800, 0, 200, 520], 8)
+
 
 
 def check_select():
