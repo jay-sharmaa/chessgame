@@ -2,3 +2,4 @@ Added a text file for instruction
 King can still move on check places
 No stalemate option
 Pieces can still move freely with king in check
+Edit by TSEC
